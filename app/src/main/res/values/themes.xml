@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.GalleryMedia" parent="android:Theme.Material.Light.NoActionBar" />
+
+    <style name="BaseTheme" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimary</item>
+        <item name="colorAccent">@color/colorPrimary</item>
+        <!--        <item name="actionBarTheme">@color/red</item>-->
+        <item name="backgroundColor">@color/onBgColor</item>
+        <item name="colorSurface">@color/white</item>
+        <item name="colorOnSurface">@color/text_primary</item>
+        <item name="itemBackground">@color/black</item>
+        <item name="colorControlHighlight">@color/colorPrimary</item>
+        <item name="android:statusBarColor">@color/colorPrimary</item>
+    </style>
+
+    <style name="Theme.SplashPlayer" parent="Theme.SplashScreen">
+<!--        <item name="windowSplashScreenBackground">@color/splash_bg</item>-->
+        <item name="windowSplashScreenAnimatedIcon">@drawable/the_splash</item>
+        <item name="postSplashScreenTheme">@style/Theme.GalleryMedia</item>
+    </style>
+</resources>
