@@ -11,6 +11,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.MovieCreation
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -18,19 +19,24 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.io.File
 
 @Composable
 fun LoadImageThumb(
     url: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    imageVector: ImageVector = Icons.Outlined.MovieCreation
 ) {
+    val context = LocalContext.current
     val thumbnail: MutableState<Bitmap?> = remember {
         mutableStateOf(null)
     }
@@ -44,23 +50,32 @@ fun LoadImageThumb(
         }
     }
 
-    Glide.with(LocalContext.current)
-        .asBitmap()
-        .load(checkUri(url))
-        .diskCacheStrategy(DiskCacheStrategy.ALL)
-        .into(object : CustomTarget<Bitmap>() {
-            override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
-                thumbnail.value = resource
-            }
+    LaunchedEffect(key1 = url) {
+        launch(Dispatchers.IO) {
+            Glide.with(context)
+                .asBitmap()
+                .load(checkUri(url))
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .into(object : CustomTarget<Bitmap>() {
+                    override fun onResourceReady(
+                        resource: Bitmap,
+                        transition: Transition<in Bitmap>?
+                    ) {
+                        thumbnail.value = resource
+                    }
 
-            override fun onLoadCleared(placeholder: Drawable?) {
+                    override fun onLoadCleared(placeholder: Drawable?) {
 
-            }
-        })
+                    }
+                })
+        }
+
+    }
+
 
     Box(modifier = modifier) {
         Icon(
-            imageVector = Icons.Outlined.MovieCreation,
+            imageVector = imageVector,
             contentDescription = url,
             modifier = Modifier.align(Alignment.Center),
             tint = Color.DarkGray
@@ -73,9 +88,11 @@ fun LoadImageThumb(
                 modifier = Modifier.fillMaxSize()
             )
         }
-        Box(modifier = Modifier
-            .matchParentSize()
-            .background(Color.Black.copy(alpha = 0.1f)))
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .background(Color.Black.copy(alpha = 0.1f))
+        )
     }
 
 }

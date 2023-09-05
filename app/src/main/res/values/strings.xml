@@ -142,6 +142,7 @@
     <string name="select_file">Select</string>
     <string name="previous">previous</string>
     <string name="folders">Folders</string>
+    <string name="albums">Albums</string>
     <string name="auto">Auto</string>
     <string name="cant_share">Can\'t share</string>
     <string name="cast_failed_to_connect">cast failed to connect</string>
@@ -173,5 +174,9 @@
     <string name="block_ads_text">"Remove (or) Block ads for a day. "</string>
     <string name="watch_again">Watch again</string>
     <string name="photos">photos</string>
+    <string name="files_are_not_found">files are not found!</string>
+    <string name="photos_are_not_found">photos are not found!</string>
+    <string name="width">Width</string>
+    <string name="height">height</string>
 
 </resources>

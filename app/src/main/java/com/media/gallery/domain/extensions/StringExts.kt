@@ -7,12 +7,14 @@ import android.os.Bundle
 import android.os.Environment
 import android.os.Parcelable
 import android.provider.MediaStore
+import com.media.gallery.config.AppConstants
 import com.media.gallery.config.AppConstants.NOMEDIA
 import com.media.gallery.config.AppConstants.audioExtensions
 import com.media.gallery.config.AppConstants.isRPlus
 import com.media.gallery.config.AppConstants.photoExtensions
 import com.media.gallery.config.AppConstants.rawExtensions
 import com.media.gallery.config.AppConstants.videoExtensions
+import com.media.gallery.domain.sealedCls.PageItemViewType
 
 import java.io.File
 import java.io.IOException
@@ -36,6 +38,17 @@ import java.util.*
         }
     }
 }*/
+
+
+fun Int.getPageViewType(count: Int = 5): PageItemViewType {
+    return when (this) {
+        AppConstants.GRID_VIEW -> PageItemViewType.GridListView(girdCount = count)
+        AppConstants.MEDIUM_LIST_VIEW -> PageItemViewType.MediumListView
+        AppConstants.SMALL_LIST_VIEW -> PageItemViewType.SmallListView
+        AppConstants.LARGE_LIST_VIEW -> PageItemViewType.LargeListView
+        else -> PageItemViewType.GridListView(count)
+    }
+}
 
 fun String.toFirstCap(): String {
     val takeFirst = first().uppercase()
@@ -371,7 +384,6 @@ fun String.stringForTime(): String {
         }
     }
 }
-
 
 
 fun String.getFileSize(): String {

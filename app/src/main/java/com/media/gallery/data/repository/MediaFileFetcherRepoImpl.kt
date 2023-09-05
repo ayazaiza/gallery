@@ -18,7 +18,6 @@ import com.media.gallery.config.AppConstants.ANDROID_DATA_DIR
 import com.media.gallery.config.AppConstants.DIRS_ACCESSIBLE_ONLY_WITH_SAF
 import com.media.gallery.config.AppConstants.NOMEDIA
 import com.media.gallery.config.AppConstants.SD_OTG_PATTERN
-import com.media.gallery.config.AppConstants.TYPE_AUDIOS
 import com.media.gallery.config.AppConstants.TYPE_GIFS
 import com.media.gallery.config.AppConstants.TYPE_IMAGES
 import com.media.gallery.config.AppConstants.TYPE_PORTRAITS
@@ -28,7 +27,9 @@ import com.media.gallery.config.AppConstants.TYPE_VIDEOS
 import com.media.gallery.config.AppConstants.getInternalStorageLocation
 import com.media.gallery.config.AppConstants.ignoredTryCatch
 import com.media.gallery.config.AppConstants.isRPlus
+import com.media.gallery.config.AppConstants.photoExtensions
 import com.media.gallery.config.AppConstants.physicalPaths
+import com.media.gallery.config.AppConstants.rawExtensions
 import com.media.gallery.config.AppConstants.videoExtensions
 import com.media.gallery.config.Resource
 import com.media.gallery.data.data_source.PlayerRoomDatabase
@@ -44,7 +45,6 @@ import com.media.gallery.domain.extensions.getParentPath
 import com.media.gallery.domain.extensions.getStorageDirectories
 import com.media.gallery.domain.extensions.getStringValue
 import com.media.gallery.domain.extensions.getStringValueOrNull
-import com.media.gallery.domain.extensions.isAudioFast
 import com.media.gallery.domain.extensions.isGif
 import com.media.gallery.domain.extensions.isImageFast
 import com.media.gallery.domain.extensions.isMediaFile
@@ -86,6 +86,39 @@ class MediaFileFetcherRepoImpl(
     private var fetchJob: Job? = null
 
     private val oTGPath get() = sharedPreferenceRepo.oTGPath
+
+    override fun fetchAllPhotos(): Flow<Resource<List<GalleryMediaItem>>> {
+        return playerRoomDatabase.videoCardsDao.getAllMediaFilesFlow().map {
+                Resource.Success(it.map { dir ->
+                    dir.toGalleryMediaItem().copy(
+                        mediaCount = playerRoomDatabase.videoCardsDao.getFoldersCount(dir.parentPath)
+                            .toInt()
+                    )
+                }.filter { galleryMediaItem -> galleryMediaItem.type != TYPE_VIDEOS })
+            }
+    }
+
+    override fun fetchAllVideos(): Flow<Resource<List<GalleryMediaItem>>> {
+        return playerRoomDatabase.videoCardsDao.getAllMediaFilesFlow().map {
+                Resource.Success(it.map { dir ->
+                    dir.toGalleryMediaItem().copy(
+                        mediaCount = playerRoomDatabase.videoCardsDao.getFoldersCount(dir.parentPath)
+                            .toInt()
+                    )
+                }.filter { galleryMediaItem -> galleryMediaItem.type == TYPE_VIDEOS })
+            }
+    }
+
+    override fun fetchAllMedias(): Flow<Resource<List<GalleryMediaItem>>> {
+        return playerRoomDatabase.videoCardsDao.getAllMediaFilesFlow().map {
+                Resource.Success(it.map { dir ->
+                    dir.toGalleryMediaItem().copy(
+                        mediaCount = playerRoomDatabase.videoCardsDao.getFoldersCount(dir.parentPath)
+                            .toInt()
+                    )
+                })
+            }
+    }
 
     override fun getAllVideos(path: String?): Flow<Resource<List<GalleryMediaItem>>> {
         return getAllVideosFromDb(path).map {
@@ -133,8 +166,7 @@ class MediaFileFetcherRepoImpl(
 
 
     override fun fetchAllFiles(): Flow<Resource<List<GalleryMediaItem>>> {
-        return playerRoomDatabase.videoCardsDao.getAllMediaFilesFlow()
-            .map {
+        return playerRoomDatabase.videoCardsDao.getAllMediaFilesFlow().map {
                 Resource.Success(it.map { dir ->
                     dir.toGalleryMediaItem().copy(
                         mediaCount = playerRoomDatabase.videoCardsDao.getFoldersCount(dir.parentPath)
@@ -521,17 +553,39 @@ class MediaFileFetcherRepoImpl(
 
     private fun getSelectionQuery(): String {
         return buildString {
-            repeat(videoExtensions.count()) {
-                append("${MediaStore.Video.Media.DATA} LIKE ? OR ")
+            repeat(photoExtensions.count()) {
+                append("${MediaStore.Images.Media.DATA} LIKE ? OR ")
             }
+
+            append("${MediaStore.Images.Media.DATA} LIKE ? OR ")
+            append("${MediaStore.Images.Media.DATA} LIKE ? OR ")
+            repeat(videoExtensions.count()) {
+                append("${MediaStore.Images.Media.DATA} LIKE ? OR ")
+            }
+            append("${MediaStore.Images.Media.DATA} LIKE ? OR ")
+
+            repeat(rawExtensions.count()) {
+                append("${MediaStore.Images.Media.DATA} LIKE ? OR ")
+            }
+            append("${MediaStore.Images.Media.DATA} LIKE ? OR ")
         }.trim().removeSuffix("OR")
     }
 
     private fun getSelectionArgsQuery(): ArrayList<String> {
         val args = ArrayList<String>()
+        photoExtensions.forEach {
+            args.add("%$it")
+        }
+        args.add("%.jpg")
+        args.add("%.jpeg")
         videoExtensions.forEach {
             args.add("%$it")
         }
+        args.add("%.gif")
+        rawExtensions.forEach {
+            args.add("%$it")
+        }
+        args.add("%.svg")
         return args
     }
 
@@ -567,9 +621,7 @@ class MediaFileFetcherRepoImpl(
             }
             if (curMedia.isEmpty()) {
                 val deepFolder = getMediaInFolder(
-                    folder = curPath,
-                    filterMedia = filterMedia,
-                    parentName = parentName
+                    folder = curPath, filterMedia = filterMedia, parentName = parentName
                 )
                 if (isRPlus() && !Environment.isExternalStorageManager()) {
                     val files = getAndroid11FolderMedia()
@@ -617,17 +669,13 @@ class MediaFileFetcherRepoImpl(
                 return@forEach
             }
 
-            if (isImage && (filterMedia and TYPE_IMAGES == 0))
-                return@forEach
+            if (isImage && (filterMedia and TYPE_IMAGES == 0)) return@forEach
 
-            if (isGif && filterMedia and TYPE_GIFS == 0)
-                return@forEach
+            if (isGif && filterMedia and TYPE_GIFS == 0) return@forEach
 
-            if (isRaw && filterMedia and TYPE_RAW == 0)
-                return@forEach
+            if (isRaw && filterMedia and TYPE_RAW == 0) return@forEach
 
-            if (isSvg && filterMedia and TYPE_SVG == 0)
-                return@forEach
+            if (isSvg && filterMedia and TYPE_SVG == 0) return@forEach
 
             if (file.length() <= 0L || !file.exists() || !file.isFile) {
                 return@forEach
@@ -662,8 +710,7 @@ class MediaFileFetcherRepoImpl(
     }
 
     private fun getMediaOnOTG(
-        folder: String,
-        filterMedia: Int
+        folder: String, filterMedia: Int
     ): ArrayList<GalleryMediaItemEntity> {
         val media = ArrayList<GalleryMediaItemEntity>()
         val files = getDocumentFile(folder)?.listFiles() ?: return media
@@ -678,23 +725,16 @@ class MediaFileFetcherRepoImpl(
             val isGif = if (isImage || isVideo) false else filename.isGif()
             val isRaw = if (isImage || isVideo || isGif) false else filename.isRawFast()
             val isSvg = if (isImage || isVideo || isGif || isRaw) false else filename.isSvg()
-            if (!isImage && !isVideo && !isGif && !isRaw && !isSvg)
-                return@forEach
-            if (isVideo && filterMedia and TYPE_VIDEOS == 0)
-                return@forEach
+            if (!isImage && !isVideo && !isGif && !isRaw && !isSvg) return@forEach
+            if (isVideo && filterMedia and TYPE_VIDEOS == 0) return@forEach
 
-            if (isImage && filterMedia and TYPE_IMAGES == 0)
-                return@forEach
+            if (isImage && filterMedia and TYPE_IMAGES == 0) return@forEach
 
-            if (isGif && filterMedia and TYPE_GIFS == 0)
-                return@forEach
+            if (isGif && filterMedia and TYPE_GIFS == 0) return@forEach
 
-            if (isRaw && filterMedia and TYPE_RAW == 0)
-                return@forEach
+            if (isRaw && filterMedia and TYPE_RAW == 0) return@forEach
 
-            if (isSvg && filterMedia and TYPE_SVG == 0)
-                return@forEach
-            /*         if (isVideo && (getOnlyAudios || filterMedia and TYPE_VIDEOS == 0)) return@forEach
+            if (isSvg && filterMedia and TYPE_SVG == 0) return@forEach/*         if (isVideo && (getOnlyAudios || filterMedia and TYPE_VIDEOS == 0)) return@forEach
                      if (isAudio && (getOnlyVideos || filterMedia and TYPE_AUDIOS == 0)) return@forEach*/
             if (!showHidden && filename.startsWith(".")) return@forEach
             val size = file.length()

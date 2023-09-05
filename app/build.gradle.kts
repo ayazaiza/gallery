@@ -10,6 +10,17 @@ plugins {
 }
 
 android {
+
+    signingConfigs {
+
+        create("release") {
+            keyAlias = "gallerykey"
+            keyPassword = "gallery123"
+            storeFile = file("keystore.jks")
+            storePassword = "gallery123"
+        }
+    }
+
     namespace = "com.media.gallery"
     compileSdk = 34
 
@@ -30,10 +41,13 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = true
+            isDebuggable = false
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("release")
         }
     }
     compileOptions {
@@ -103,7 +117,7 @@ dependencies {
     /* Splash library */
     implementation("androidx.core:core-splashscreen:1.0.1")
 
-    val navVersion = "2.7.0"
+    val navVersion = "2.7.1"
     implementation("androidx.navigation:navigation-compose:$navVersion")
 
     //Dagger - Hilt
@@ -115,7 +129,7 @@ dependencies {
     implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
 
     /* Glide library */
-    val glideVersion = "4.14.2"
+    val glideVersion = "4.15.1"
     implementation("com.github.bumptech.glide:glide:$glideVersion")
     ksp("com.github.bumptech.glide:compiler:$glideVersion")
 
@@ -125,4 +139,7 @@ dependencies {
     ksp("androidx.room:room-compiler:$roomDbVersion")
     // Kotlin Extensions and Coroutines support for Room
     implementation("androidx.room:room-ktx:$roomDbVersion")
+
+    implementation("io.coil-kt:coil-compose:2.4.0")
+    implementation("io.coil-kt:coil-video:2.4.0")
 }

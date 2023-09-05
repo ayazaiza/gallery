@@ -21,6 +21,7 @@ import com.media.gallery.config.AppConstants
 import com.media.gallery.domain.models.HomeState
 import com.media.gallery.domain.util.Routes
 import com.media.gallery.presentation.home.MainHomeScreen
+import com.media.gallery.presentation.home.MainHomeViewModel
 import com.media.gallery.presentation.initial.InitialScreen
 import com.media.gallery.presentation.initial.InitialScreenViewModel
 import com.media.gallery.presentation.permissions.PermissionScreen
@@ -94,61 +95,9 @@ fun GalleryRouteHost(
             }
 
             composable(route = Routes.AllFilesScreen.route) {
-                MainHomeScreen()
-                /* val viewModel = hiltViewModel<FoldersViewModel>()
-                 val state by viewModel.state.collectAsStateWithLifecycle()
-                 if (state.mediaDirectories.isNotEmpty() && !state.isOneDayPremium) {
-                     viewModel.onEvent(FolderScreenEvent.LoadInterAds)
-                 }
-                 FoldersScreen(
-                     state = state,
-                     navToVideos = { path, mediaCount, name ->
-                         onEvent(
-                             HomeViewEvent.ShowAdsFromCompose {
-                                 navController.navigate(
-                                     buildLink(
-                                         Routes.AllVideosScreen.name,
-                                         AppConstants.PATH_PARAM,
-                                         path,
-                                         AppConstants.COUNT_PARAM,
-                                         mediaCount.toString(),
-                                         AppConstants.FOLDER_NAME_PARAM,
-                                         name
-                                     )
-                                 )
-                             }
-                         )
-                         *//*navController.navigate(
-                            buildLink(
-                                Routes.AllVideosScreen.name,
-                                AppConstants.PATH_PARAM,
-                                path,
-                                AppConstants.COUNT_PARAM,
-                                mediaCount.toString(),
-                                AppConstants.FOLDER_NAME_PARAM,
-                                name
-                            )
-                        )*//*
-                    },
-                    onEvent = viewModel::onEvent,
-                    settingsScreen = {
-                        navController.navigate(Routes.SettingsScreen.name)
-                    },
-                    fileManagerScreen = {
-                        navController.navigate(Routes.FileManagerScreen.name)
-                    }, shareScreen = {
-                        onEvent(HomeViewEvent.ShareApp)
-                    },
-                    searchScreen = {
-
-                        navController.navigate(Routes.SearchScreen.name)
-                    },
-                    blockAdsScreen = {
-                        navController.navigate(Routes.BlockAdsScreen.name)
-
-                    }
-                )*/
-
+                val viewModel = hiltViewModel<MainHomeViewModel>()
+                val state by viewModel.state.collectAsStateWithLifecycle()
+                MainHomeScreen(mainHomeState = state, onEvent = viewModel::onEvent)
             }
 
             composable(

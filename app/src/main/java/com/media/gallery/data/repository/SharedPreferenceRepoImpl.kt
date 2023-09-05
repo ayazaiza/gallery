@@ -116,7 +116,23 @@ class SharedPreferenceRepoImpl(
         set(value) {
             putIntValue(AppConstants.VIDEOS_SORT_TYPE_KEY, value)
         }
+    override var photosSortType: Int
+        get() = sharedPreferences.getInt(
+            AppConstants.PHOTOS_SORT_TYPE_KEY,
+            AppConstants.SORT_TYPE_BY_LAST_MODIFIED
+        )
+        set(value) {
+            putIntValue(AppConstants.PHOTOS_SORT_TYPE_KEY, value)
+        }
 
+    override var photosViewType: Int
+        get() = sharedPreferences.getInt(
+            AppConstants.PHOTOS_VIEW_TYPE_KEY,
+            AppConstants.GRID_VIEW
+        )
+        set(value) {
+            putIntValue(AppConstants.PHOTOS_VIEW_TYPE_KEY, value)
+        }
     override var internalStoragePath: String
         get() = sharedPreferences.getString(INTERNAL_STORAGE_PATH, "")!!
         set(internalStoragePath) = putStringValue(

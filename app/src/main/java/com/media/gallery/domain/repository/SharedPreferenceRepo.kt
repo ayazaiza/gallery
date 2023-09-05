@@ -3,13 +3,16 @@ package com.media.gallery.domain.repository
 interface SharedPreferenceRepo {
 
     var theme: Int
-    var dynamicTheme:Boolean
+    var dynamicTheme: Boolean
     var adsTimes: Long
     var filterMedia: Int
     var folderViewType: Int
     var folderSortType: Int
     var videosViewType: Int
     var videosSortType: Int
+    var photosSortType: Int
+    var photosViewType:Int
+
     var oTGPath: String
     var oTGPartition: String
     var oTGTreeUri: String
@@ -27,10 +30,10 @@ interface SharedPreferenceRepo {
     var excludedFolders: MutableSet<String>
 
 
-    var resume:Boolean
-    var autoPlay:Boolean
-    var orientation:Int
-    var brightness:Int
+    var resume: Boolean
+    var autoPlay: Boolean
+    var orientation: Int
+    var brightness: Int
     fun removeBunch(path: String)
     fun setBunch(key: String, value: String)
     fun getBunch(key: String): String?

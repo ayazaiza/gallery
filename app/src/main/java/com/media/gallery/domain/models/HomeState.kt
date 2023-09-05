@@ -7,7 +7,7 @@ data class HomeState(
     val resume: Boolean = true,
     val autoPlay: Boolean = true,
     val showThemes: Boolean = false,
-    val themesOption: List<PlayerOption> = emptyList(),
+    val themesOption: List<OptionsMenu> = emptyList(),
     val loadingDialog: Boolean = false,
     val errorDialog: Boolean = false,
     val isOnePremium: Boolean = false,

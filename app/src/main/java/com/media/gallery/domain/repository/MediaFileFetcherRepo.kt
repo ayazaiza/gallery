@@ -8,6 +8,12 @@ import kotlinx.coroutines.flow.StateFlow
 
 interface MediaFileFetcherRepo {
 
+
+    fun fetchAllPhotos(): Flow<Resource<List<GalleryMediaItem>>>
+    fun fetchAllVideos(): Flow<Resource<List<GalleryMediaItem>>>
+
+    fun fetchAllMedias():Flow<Resource<List<GalleryMediaItem>>>
+
     val queueMediaItem: List<GalleryMediaItem>
 
     val isMediaFetching: StateFlow<Boolean>

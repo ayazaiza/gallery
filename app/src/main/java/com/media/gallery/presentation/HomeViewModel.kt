@@ -6,7 +6,7 @@ import com.media.gallery.domain.models.HomeState
 import com.media.gallery.domain.models.PlayerAppThemes
 import com.media.gallery.domain.repository.MediaFileFetcherRepo
 import com.media.gallery.domain.repository.SharedPreferenceRepo
-import com.media.gallery.domain.repository.ViewModelStrRes
+import com.media.gallery.domain.repository.ViewModelStrResRepo
 import com.media.gallery.presentation.navigation.HomeViewEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -20,7 +20,7 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val mediaFileFetcherRepo: MediaFileFetcherRepo,
     private val sharedPreferenceRepo: SharedPreferenceRepo,
-    private val viewModelStrRes: ViewModelStrRes,
+    private val viewModelStrResRepo: ViewModelStrResRepo,
 ) : ViewModel() {
 
     private val _state: MutableStateFlow<HomeState> = MutableStateFlow(HomeState())
@@ -54,7 +54,7 @@ class HomeViewModel @Inject constructor(
                         PlayerAppThemes.Light
                     }
                 },
-                themesOption = viewModelStrRes.settingThemes.map {
+                themesOption = viewModelStrResRepo.settingThemesOptions.map {
                     it.copy(
                         isSelected = sharedPreferenceRepo.theme == it.id
                     )
@@ -73,11 +73,9 @@ class HomeViewModel @Inject constructor(
             }
 
             is HomeViewEvent.ShowAds -> {
-//                adMobAdsRepo.openInterstitialAds(event.activity, event.loadNextAds, event.showNext)
             }
 
             is HomeViewEvent.DestroyAds -> {
-//                adMobAdsRepo.releaseAds()
             }
 
             is HomeViewEvent.DynamicTheme -> {
@@ -124,68 +122,11 @@ class HomeViewModel @Inject constructor(
                 }
             }
 
-            is HomeViewEvent.ShowAdsSlow -> {/* adMobAdsRepo.openInterAdsWithoutAction(
-                     event.activity,
-                     event.loadNextAds,
-                     event.showNext
-                 )*/
+            is HomeViewEvent.ShowAdsSlow -> {
             }
 
             HomeViewEvent.ShareApp -> {}
-            is HomeViewEvent.ShowRewardedAds -> {/*  _state.update { homeState ->
-                      homeState.copy(
-                          loadingDialog = true,
-                          errorDialog = false,
-                          adErrorMsg = null
-                      )
-                  }
-                  viewModelScope.launch {
-                      delay(3000)
-                      adMobAdsRepo.loadNewRewardedAds(event.activity,
-                          loadingDismiss = {
-                              _state.update { homeState ->
-                                  homeState.copy(
-                                      loadingDialog = false,
-                                      errorDialog = false,
-                                      adErrorMsg = null
-                                  )
-                              }
-                          }, tryAgain = {
-                              Log.e(TAG, "onEvent: ")
-                              _state.update { homeState ->
-                                  homeState.copy(
-                                      loadingDialog = false,
-                                      errorDialog = true,
-                                      adErrorMsg = viewModelStrRes.somethingWentWrong
-                                  )
-                              }
-                          }, onAdFailed = {
-                              _state.update { homeState ->
-                                  homeState.copy(
-                                      loadingDialog = false,
-                                      errorDialog = true,
-                                      adErrorMsg = viewModelStrRes.videoAdsIsNotAvailable
-                                  )
-                              }
-                          }, adImpression = {
-                          }, showError = {
-                              _state.update { homeState ->
-                                  homeState.copy(
-                                      loadingDialog = false,
-                                      errorDialog = true,
-                                      adErrorMsg = viewModelStrRes.failedToWatchVideo
-                                  )
-                              }
-                          }, adDismissed = {
-                              _state.update { homeState ->
-                                  homeState.copy(
-                                      loadingDialog = false,
-                                      errorDialog = false,
-                                      adErrorMsg = null
-                                  )
-                              }
-                          })
-                  }*/
+            is HomeViewEvent.ShowRewardedAds -> {
 
             }
 

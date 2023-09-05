@@ -1,5 +1,6 @@
 package com.media.gallery.data.mapper
 
+import com.media.gallery.config.AppConstants
 import com.media.gallery.config.AppConstants.TYPE_AUDIOS
 import com.media.gallery.config.AppConstants.TYPE_GIFS
 import com.media.gallery.config.AppConstants.TYPE_IMAGES
@@ -60,6 +61,16 @@ fun GalleryMediaItem.toGalleryMediaItemEntity(): GalleryMediaItemEntity {
         lastPosition = lastPosition,
         timestamp = timestamp
     )
+}
+
+fun List<GalleryMediaItem>.galleryAppSort(sortId: Int): List<GalleryMediaItem> {
+    return when (sortId) {
+        AppConstants.SORT_TYPE_BY_SIZE -> sortedBy { it.size }
+        AppConstants.SORT_TYPE_BY_NAME_A_TO_Z -> sortedBy { it.title }
+        AppConstants.SORT_TYPE_BY_NAME_Z_TO_A -> sortedByDescending { it.title }
+        AppConstants.SORT_TYPE_BY_LAST_MODIFIED -> sortedByDescending { it.lastModified }
+        else -> this
+    }
 }
 
 fun List<GalleryMediaItemEntity>.getDirMediaTypes(): Int {

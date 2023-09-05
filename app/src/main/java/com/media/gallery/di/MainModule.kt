@@ -12,11 +12,11 @@ import com.media.gallery.config.AppConstants
 import com.media.gallery.data.data_source.PlayerRoomDatabase
 import com.media.gallery.data.repository.MediaFileFetcherRepoImpl
 import com.media.gallery.data.repository.SharedPreferenceRepoImpl
-import com.media.gallery.data.repository.ViewModelStrResImpl
+import com.media.gallery.data.repository.ViewModelStrResRepoImpl
 import com.media.gallery.domain.extensions.getSharedPrefs
 import com.media.gallery.domain.repository.MediaFileFetcherRepo
 import com.media.gallery.domain.repository.SharedPreferenceRepo
-import com.media.gallery.domain.repository.ViewModelStrRes
+import com.media.gallery.domain.repository.ViewModelStrResRepo
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -95,8 +95,8 @@ object MainModule {
 
     @Singleton
       @Provides
-      fun provideViewModelStrRes(@ApplicationContext context: Context): ViewModelStrRes {
-          return ViewModelStrResImpl(context = context)
+      fun provideViewModelStrRes(@ApplicationContext context: Context): ViewModelStrResRepo {
+          return ViewModelStrResRepoImpl(context = context)
       }
 
     /* @Singleton

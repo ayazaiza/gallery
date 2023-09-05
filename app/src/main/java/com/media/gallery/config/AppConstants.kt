@@ -8,6 +8,11 @@ import java.io.File
 import java.util.concurrent.CancellationException
 
 object AppConstants {
+
+    const val ALL_FILES_BOTTOM_ROUTE_NAME = "/all_files"
+    const val PHOTOS_BOTTOM_ROUTE_NAME = "/photos"
+    const val VIDEOS_BOTTOM_ROUTE_NAME = "/videos"
+
     const val ONE_DAY = "blockAdsForaDay"
     const val ANDROID_DATA_DIR = "/Android/data/"
     const val ANDROID_OBB_DIR = "/Android/obb/"
@@ -72,6 +77,7 @@ object AppConstants {
 
     const val FOLDER_VIEW_TYPE_KEY = "folder_view_type"
     const val VIDEOS_VIEW_TYPE_KEY = "videos_view_type"
+    const val PHOTOS_VIEW_TYPE_KEY = "photos_view_type"
     const val MEDIUM_LIST_VIEW = 1
     const val SMALL_LIST_VIEW = 2
     const val LARGE_LIST_VIEW = 4
@@ -80,6 +86,7 @@ object AppConstants {
 
     const val FOLDER_SORT_TYPE_KEY = "folder_sort_type"
     const val VIDEOS_SORT_TYPE_KEY = "videos_sort_type"
+    const val PHOTOS_SORT_TYPE_KEY = "photos_sort_type"
     const val SORT_TYPE_BY_NAME_A_TO_Z = 0
     const val SORT_TYPE_BY_NAME_Z_TO_A = 1
     const val SORT_TYPE_BY_LAST_MODIFIED = 2
