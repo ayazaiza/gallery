@@ -29,6 +29,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.media.gallery.R
+import com.media.gallery.domain.models.GalleryMediaItem
 import com.media.gallery.domain.sealedCls.HomeBottomNavigation
 import com.media.gallery.domain.util.components.CustomIconWithMenu
 import com.media.gallery.domain.util.components.CustomTopBar
@@ -43,7 +44,9 @@ fun MainHomeScreen(
     title: String = stringResource(id = R.string.app_name),
     bottomNavHostController: NavHostController = rememberNavController(),
     mainHomeState: MainHomeState,
-    onEvent: (MainHomeEvent) -> Unit
+    onEvent: (MainHomeEvent) -> Unit,
+    files: (GalleryMediaItem) -> Unit,
+    onTap: (GalleryMediaItem) -> Unit
 ) {
     val context = LocalContext.current
 
@@ -145,16 +148,21 @@ fun MainHomeScreen(
             navController = bottomNavHostController,
             startDestination = HomeBottomNavigation.Photos.routeName
         ) {
-
             composable(HomeBottomNavigation.Photos.routeName) {
-                GalleryItemsScreen(state = mainHomeState.photosState)
+                GalleryItemsScreen(
+                    state = mainHomeState.photosState,
+                    modifier = Modifier.fillMaxSize(),
+                    onClick = onTap
+                )
             }
             composable(HomeBottomNavigation.AllFiles.routeName) {
-                AllAlbumsScreen(state = mainHomeState.albumsState)
+                AllAlbumsScreen(state = mainHomeState.albumsState, onClick = files)
             }
             composable(HomeBottomNavigation.Videos.routeName) {
                 GalleryItemsScreen(
-                    state = mainHomeState.videosState
+                    state = mainHomeState.videosState,
+                    modifier = Modifier.fillMaxSize(),
+                    onClick = onTap
                 )
             }
         }

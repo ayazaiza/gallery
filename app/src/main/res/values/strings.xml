@@ -178,5 +178,7 @@
     <string name="photos_are_not_found">photos are not found!</string>
     <string name="width">Width</string>
     <string name="height">height</string>
+    <string name="files">files</string>
+    <string name="file">file</string>
 
 </resources>

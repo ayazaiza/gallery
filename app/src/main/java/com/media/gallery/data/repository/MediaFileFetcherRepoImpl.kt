@@ -79,7 +79,6 @@ class MediaFileFetcherRepoImpl(
 ) : MediaFileFetcherRepo {
 
     private val _isMediaFetching = MutableStateFlow(false)
-
     private val sdCardPath get() = getDefaultSDCardPath()
     private val internalStoragePath get() = getDefaultInternalPath()
 
@@ -87,37 +86,41 @@ class MediaFileFetcherRepoImpl(
 
     private val oTGPath get() = sharedPreferenceRepo.oTGPath
 
+    private val scope get() = CoroutineScope(Dispatchers.IO)
+
+    private val galleryMediaItemDao get() = playerRoomDatabase.galleryMediaItemDao
+
     override fun fetchAllPhotos(): Flow<Resource<List<GalleryMediaItem>>> {
-        return playerRoomDatabase.videoCardsDao.getAllMediaFilesFlow().map {
-                Resource.Success(it.map { dir ->
-                    dir.toGalleryMediaItem().copy(
-                        mediaCount = playerRoomDatabase.videoCardsDao.getFoldersCount(dir.parentPath)
-                            .toInt()
-                    )
-                }.filter { galleryMediaItem -> galleryMediaItem.type != TYPE_VIDEOS })
-            }
+        return galleryMediaItemDao.getAllMediaFilesFlow().map {
+            Resource.Success(it.map { dir ->
+                dir.toGalleryMediaItem().copy(
+                    mediaCount = galleryMediaItemDao.getFoldersCount(dir.parentPath)
+                        .toInt()
+                )
+            }.filter { galleryMediaItem -> galleryMediaItem.type != TYPE_VIDEOS })
+        }
     }
 
     override fun fetchAllVideos(): Flow<Resource<List<GalleryMediaItem>>> {
-        return playerRoomDatabase.videoCardsDao.getAllMediaFilesFlow().map {
-                Resource.Success(it.map { dir ->
-                    dir.toGalleryMediaItem().copy(
-                        mediaCount = playerRoomDatabase.videoCardsDao.getFoldersCount(dir.parentPath)
-                            .toInt()
-                    )
-                }.filter { galleryMediaItem -> galleryMediaItem.type == TYPE_VIDEOS })
-            }
+        return galleryMediaItemDao.getAllMediaFilesFlow().map {
+            Resource.Success(it.map { dir ->
+                dir.toGalleryMediaItem().copy(
+                    mediaCount = galleryMediaItemDao.getFoldersCount(dir.parentPath)
+                        .toInt()
+                )
+            }.filter { galleryMediaItem -> galleryMediaItem.type == TYPE_VIDEOS })
+        }
     }
 
     override fun fetchAllMedias(): Flow<Resource<List<GalleryMediaItem>>> {
-        return playerRoomDatabase.videoCardsDao.getAllMediaFilesFlow().map {
-                Resource.Success(it.map { dir ->
-                    dir.toGalleryMediaItem().copy(
-                        mediaCount = playerRoomDatabase.videoCardsDao.getFoldersCount(dir.parentPath)
-                            .toInt()
-                    )
-                })
-            }
+        return galleryMediaItemDao.getAllMediaFilesFlow().map {
+            Resource.Success(it.map { dir ->
+                dir.toGalleryMediaItem().copy(
+                    mediaCount = galleryMediaItemDao.getFoldersCount(dir.parentPath)
+                        .toInt()
+                )
+            })
+        }
     }
 
     override fun getAllVideos(path: String?): Flow<Resource<List<GalleryMediaItem>>> {
@@ -128,14 +131,14 @@ class MediaFileFetcherRepoImpl(
 
 
     override fun getVideoCard(path: String): Flow<Resource<GalleryMediaItem?>> {
-        return playerRoomDatabase.videoCardsDao.getMediaFileFromPathFlow(path).map {
+        return galleryMediaItemDao.getMediaFileFromPathFlow(path).map {
             val videoCard = it.firstOrNull()?.toGalleryMediaItem()
             Resource.Success(videoCard)
         }
     }
 
     override fun getVideoCardById(id: String): Flow<Resource<GalleryMediaItem?>> {
-        return playerRoomDatabase.videoCardsDao.getMediaFileFromIdByFlow(id).map {
+        return galleryMediaItemDao.getMediaFileFromIdByFlow(id).map {
             val videoCard = it.firstOrNull()?.toGalleryMediaItem()
             Resource.Success(videoCard)
         }
@@ -146,7 +149,7 @@ class MediaFileFetcherRepoImpl(
     }
 
     override suspend fun deleteVideoCard(path: String) {
-        playerRoomDatabase.videoCardsDao.deleteMediumPath(path = path)
+        galleryMediaItemDao.deleteMediumPath(path = path)
     }
 
     private var _queues: List<GalleryMediaItem> = emptyList()
@@ -156,7 +159,7 @@ class MediaFileFetcherRepoImpl(
         get() = _isMediaFetching.asStateFlow()
 
     override suspend fun searchVideos(query: String): List<GalleryMediaItem> {
-        return playerRoomDatabase.videoCardsDao.search(query)
+        return galleryMediaItemDao.search(query)
             .map { galleryItem -> galleryItem.toGalleryMediaItem() }
     }
 
@@ -166,24 +169,24 @@ class MediaFileFetcherRepoImpl(
 
 
     override fun fetchAllFiles(): Flow<Resource<List<GalleryMediaItem>>> {
-        return playerRoomDatabase.videoCardsDao.getAllMediaFilesFlow().map {
-                Resource.Success(it.map { dir ->
-                    dir.toGalleryMediaItem().copy(
-                        mediaCount = playerRoomDatabase.videoCardsDao.getFoldersCount(dir.parentPath)
-                            .toInt()
-                    )
-                })
-            }
+        return galleryMediaItemDao.getAllMediaFilesFlow().map {
+            Resource.Success(it.map { dir ->
+                dir.toGalleryMediaItem().copy(
+                    mediaCount = galleryMediaItemDao.getFoldersCount(dir.parentPath)
+                        .toInt()
+                )
+            })
+        }
     }
 
 
     override fun checkAllFolders() {
         fetchJob?.cancel()
         _isMediaFetching.update { true }
-        fetchJob = CoroutineScope(Dispatchers.IO).launch {
+        fetchJob = scope.launch {
             val includedPaths = sharedPreferenceRepo.includedFolders
             val excludedPaths = sharedPreferenceRepo.excludedFolders
-            val directories = playerRoomDatabase.videoCardsDao.getAllMediaFiles()
+            val directories = galleryMediaItemDao.getAllMediaFiles()
             _isMediaFetching.update { directories.isEmpty() }
             val filterMedia = sharedPreferenceRepo.filterMedia
             val noMediaFolderFiles = HashMap<String, Boolean>()
@@ -191,7 +194,7 @@ class MediaFileFetcherRepoImpl(
                 !getDoesFilePathExist(it.path, oTGPath)
             }.forEach {
                 ignoredTryCatch {
-                    playerRoomDatabase.videoCardsDao.deleteMediumPath(it.path)
+                    galleryMediaItemDao.deleteMediumPath(it.path)
                 }
             }
             val filteredDirectories = ArrayList(directories.filter { it.type == filterMedia }
@@ -224,7 +227,7 @@ class MediaFileFetcherRepoImpl(
                 if (newMedia.isEmpty()) {
                     dirPathsToRemove.add(directory.parentPath)
                 }
-                ignoredTryCatch { playerRoomDatabase.videoCardsDao.insertAll(newMedia) }
+                ignoredTryCatch { galleryMediaItemDao.insertAll(newMedia) }
                 val mediaToDelete = arrayListOf<GalleryMediaItemEntity>()
                 getCachedMedia(directory.parentPath) {
                     it.forEach { mediaFile ->
@@ -234,14 +237,14 @@ class MediaFileFetcherRepoImpl(
                     }
                 }
                 if (mediaToDelete.isNotEmpty()) {
-                    playerRoomDatabase.videoCardsDao.deleteMedia(*mediaToDelete.toTypedArray())
+                    galleryMediaItemDao.deleteMedia(*mediaToDelete.toTypedArray())
                 }
             }
             if (dirPathsToRemove.isNotEmpty()) {
                 val dirsToRemove = newDirs.filter { dirPathsToRemove.contains(it.parentPath) }
                 dirsToRemove.forEach {
                     ignoredTryCatch {
-                        playerRoomDatabase.videoCardsDao.deleteMediaFileByParentPath(it.parentPath)
+                        galleryMediaItemDao.deleteMediaFileByParentPath(it.parentPath)
                     }
                 }
             }
@@ -268,7 +271,7 @@ class MediaFileFetcherRepoImpl(
             }
 
             ignoredTryCatch {
-                playerRoomDatabase.videoCardsDao.insertAll(newMedia)
+                galleryMediaItemDao.insertAll(newMedia)
             }
         }
         if (newDirs.size > 50) {
@@ -351,9 +354,9 @@ class MediaFileFetcherRepoImpl(
 
     private fun getAllVideosFromDb(path: String?): Flow<List<GalleryMediaItemEntity>> {
         return if (path.isNullOrEmpty()) {
-            playerRoomDatabase.videoCardsDao.getAllMediaFilesFlow()
+            galleryMediaItemDao.getAllMediaFilesFlow()
         } else {
-            playerRoomDatabase.videoCardsDao.getMediaFromPathFlow(path)
+            galleryMediaItemDao.getMediaFromPathFlow(path)
         }
     }
 
@@ -399,7 +402,7 @@ class MediaFileFetcherRepoImpl(
         var media = arrayListOf<GalleryMediaItemEntity>()
         foldersToScan.filter { it.isNotEmpty() }.forEach {
             ignoredTryCatch {
-                val currMedia = playerRoomDatabase.videoCardsDao.getMediaFromPath(it)
+                val currMedia = galleryMediaItemDao.getMediaFromPath(it)
                 media.addAll(currMedia)
             }
         }
@@ -416,7 +419,7 @@ class MediaFileFetcherRepoImpl(
             }
             if (mediaToDelete.isNotEmpty()) {
                 ignoredTryCatch {
-                    playerRoomDatabase.videoCardsDao.deleteMedia(*mediaToDelete.toTypedArray())
+                    galleryMediaItemDao.deleteMedia(*mediaToDelete.toTypedArray())
                 }
             }
         }

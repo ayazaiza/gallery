@@ -42,6 +42,11 @@ object AppConstants {
     const val APP_ALL_FILES_NAME = "app_all_files"
 //    const val APP_ALL_FILES_ROUTE = APP_ALL_FILES_NAME
 
+    const val APP_FILES_NAME = "app_files"
+    const val APP_FILES_ROUTE =
+        "$APP_FILES_NAME?$PATH_PARAM={$PATH_PARAM}&$FOLDER_NAME_PARAM={$FOLDER_NAME_PARAM}"
+
+
     const val APP_ALL_VIDEOS_NAME = "app_all_videos"
     const val APP_ALL_VIDEOS_ROUTE =
         "$APP_ALL_VIDEOS_NAME?$PATH_PARAM={$PATH_PARAM}&$COUNT_PARAM={$COUNT_PARAM}&$FOLDER_NAME_PARAM={$FOLDER_NAME_PARAM}"
@@ -51,8 +56,8 @@ object AppConstants {
         "$APP_ALL_PHOTOS_NAME?$PATH_PARAM={$PATH_PARAM}&$COUNT_PARAM={$COUNT_PARAM}&$FOLDER_NAME_PARAM={$FOLDER_NAME_PARAM}"
 
 
-    const val APP_VIDEO_DETAILS_NAME = "app_video_details"
-    const val APP_VIDEO_DETAILS_ROUTE = "$APP_VIDEO_DETAILS_NAME?$ID_PARAM={$ID_PARAM}"
+    const val APP_FILE_DETAILS_NAME = "app_file_details"
+    const val APP_FILE_DETAILS_ROUTE = "$APP_FILE_DETAILS_NAME?$ID_PARAM={$ID_PARAM}"
 
     const val APP_SETTINGS_ROUTE = "app_settings"
 

@@ -7,8 +7,5 @@ import dagger.hilt.android.HiltAndroidApp
 class GalleryApp : Application()
 
 /*
-* viewtype in all files
 * multiple deletes
-* file info
-*
 * */

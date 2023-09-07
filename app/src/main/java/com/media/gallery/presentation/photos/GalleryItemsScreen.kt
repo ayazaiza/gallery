@@ -1,7 +1,7 @@
 package com.media.gallery.presentation.photos
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -10,6 +10,7 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.media.gallery.domain.models.GalleryMediaItem
 import com.media.gallery.domain.sealedCls.PageItemViewType
 import com.media.gallery.presentation.home.widgets.GridItemView
 import com.media.gallery.presentation.home.widgets.LargeItemView
@@ -19,10 +20,12 @@ import com.media.gallery.presentation.photos.models.GalleryItemsState
 
 @Composable
 fun GalleryItemsScreen(
-    state: GalleryItemsState
+    modifier: Modifier = Modifier,
+    state: GalleryItemsState,
+    onClick: (GalleryMediaItem) -> Unit
 ) {
     Box(
-        modifier = Modifier.fillMaxSize()
+        modifier = modifier
     ) {
         LazyVerticalGrid(
             columns = GridCells.Fixed(state.pageViewType.count),
@@ -30,7 +33,9 @@ fun GalleryItemsScreen(
                 items(state.mediaItems) { item ->
                     when (state.pageViewType) {
                         is PageItemViewType.GridListView -> {
-                            GridItemView(galleryMediaItem = item)
+                            GridItemView(galleryMediaItem = item, modifier = Modifier.clickable {
+                                onClick(item)
+                            })
                         }
 
                         PageItemViewType.LargeListView -> {
@@ -39,6 +44,9 @@ fun GalleryItemsScreen(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(6.dp)
+                                    .clickable {
+                                        onClick(item)
+                                    }
                             )
                         }
 
@@ -48,6 +56,9 @@ fun GalleryItemsScreen(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(6.dp)
+                                    .clickable {
+                                        onClick(item)
+                                    }
                             )
                         }
 
@@ -57,6 +68,9 @@ fun GalleryItemsScreen(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(8.dp)
+                                    .clickable {
+                                        onClick(item)
+                                    }
                             )
                         }
                     }

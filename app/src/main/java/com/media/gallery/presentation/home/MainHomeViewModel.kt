@@ -79,7 +79,9 @@ class MainHomeViewModel @Inject constructor(
             val photos = resp.data?.filter { media -> media.type != AppConstants.TYPE_VIDEOS }
                 ?.galleryAppSort(photosSortType) ?: emptyList()
             val albums =
-                resp.data?.sortedByDescending { it.lastModified }?.distinctBy { it.parentPath }
+                resp.data
+                    ?.sortedByDescending { it.lastModified }
+                    ?.distinctBy { it.parentPath }
                     ?.galleryAppSort(allAlbumsSortType)
                     ?: emptyList()
             val videos = resp.data?.filter { media -> media.type == AppConstants.TYPE_VIDEOS }

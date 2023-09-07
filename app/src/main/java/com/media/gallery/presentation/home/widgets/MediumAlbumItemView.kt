@@ -3,53 +3,44 @@ package com.media.gallery.presentation.home.widgets
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.PlayCircle
-import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
+import com.media.gallery.R
 import com.media.gallery.config.AppConstants
-import com.media.gallery.config.loadDuration
-import com.media.gallery.domain.extensions.showToast
 import com.media.gallery.domain.models.GalleryMediaItem
-import com.media.gallery.domain.util.components.CustomIconWithMenu
 import com.media.gallery.domain.util.components.LoadImageBitmap
 import com.media.gallery.domain.util.components.LoadImageThumb
 import com.media.gallery.ui.theme.promptFamily
 
 @Composable
-fun MediumItemView(
+fun MediumAlbumItemView(
     modifier: Modifier = Modifier,
     galleryMediaItem: GalleryMediaItem,
     onEvent: (GalleryMediaItem) -> Unit = {}
 ) {
-    val context = LocalContext.current
-    val duration by loadDuration(galleryMediaItem = galleryMediaItem)
+    val sizeText = if (galleryMediaItem.mediaCount < 2) {
+        stringResource(id = R.string.file)
+    } else {
+        stringResource(id = R.string.files)
+    }
 
-    ConstraintLayout(
-        modifier = modifier.toggleable(true,
-            role = Role.Checkbox,
-            onValueChange = {
-                context.showToast("$it")
-            })
-    ) {
-        val (cardView, titleView, moreBtn, durationView) = createRefs()
+    ConstraintLayout(modifier = modifier) {
+        val (cardView, titleView, sizeView) = createRefs()
         Box(
             modifier = Modifier
                 .size(80.dp, 70.dp)
@@ -82,8 +73,8 @@ fun MediumItemView(
             modifier = Modifier.constrainAs(titleView) {
                 start.linkTo(cardView.end, 6.dp)
                 top.linkTo(cardView.top)
-                bottom.linkTo(durationView.top)
-                end.linkTo(moreBtn.start, 6.dp)
+                bottom.linkTo(sizeView.top)
+                end.linkTo(parent.end, 6.dp)
                 width = Dimension.fillToConstraints
                 height = Dimension.preferredWrapContent
             },
@@ -96,31 +87,18 @@ fun MediumItemView(
         )
 
         Box(modifier = Modifier
-//                .clip(RoundedCornerShape(4.dp))
-//                .background(MaterialTheme.colorScheme.primary)
-//                .padding(horizontal = 0.dp, vertical = 0.dp)
-            .constrainAs(durationView) {
+            .constrainAs(sizeView) {
                 start.linkTo(titleView.start)
                 top.linkTo(titleView.bottom)
                 bottom.linkTo(cardView.bottom)
             }) {
-
             Text(
-                text = duration, style = MaterialTheme.typography.labelSmall.copy(
+                text = "${galleryMediaItem.mediaCount} $sizeText",
+                style = MaterialTheme.typography.labelSmall.copy(
                     fontFamily = promptFamily,
-//                    color = MaterialTheme.colorScheme.onPrimary
                 )
             )
         }
-        CustomIconWithMenu(modifier = Modifier.constrainAs(moreBtn) {
-            start.linkTo(titleView.end)
-            top.linkTo(parent.top)
-            end.linkTo(parent.end)
-            bottom.linkTo(parent.bottom)
-        }, items = emptyList(), imageVector = Icons.Rounded.MoreVert, onTap = {
-//                onEvent(VideoScreenEvent.SelectItemMenu(videoCard = videoCard, id = it.id))
-        })
-
     }
 }
 

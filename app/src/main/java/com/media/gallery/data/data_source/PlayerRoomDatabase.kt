@@ -11,7 +11,7 @@ import com.media.gallery.data.data_source.dao.entities.GalleryMediaItemEntity
     exportSchema = false
 )
 abstract class PlayerRoomDatabase : RoomDatabase() {
-    abstract val videoCardsDao: GalleryItemDao
+    abstract val galleryMediaItemDao: GalleryItemDao
 
     companion object {
         const val DATABASE_NAME = "the_gallery_db"

@@ -1,10 +1,12 @@
 package com.media.gallery.presentation.all_albums
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -18,14 +20,20 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.media.gallery.config.AppConstants
+import com.media.gallery.domain.models.GalleryMediaItem
 import com.media.gallery.domain.sealedCls.PageItemViewType
 import com.media.gallery.domain.util.components.LoadImageBitmap
 import com.media.gallery.domain.util.components.LoadImageThumb
 import com.media.gallery.presentation.all_albums.models.AllAlbumsState
+import com.media.gallery.presentation.home.widgets.MediumAlbumItemView
+import com.media.gallery.presentation.home.widgets.SmallAlbumItemView
 import com.media.gallery.ui.theme.promptFamily
 
 @Composable
-fun AllAlbumsScreen(state: AllAlbumsState) {
+fun AllAlbumsScreen(
+    state: AllAlbumsState,
+    onClick: (GalleryMediaItem) -> Unit
+) {
     Box(modifier = Modifier.fillMaxSize()) {
         LazyVerticalGrid(columns = GridCells.Fixed(state.albumsPageViewType.count), content = {
             items(state.albums) { album ->
@@ -39,6 +47,9 @@ fun AllAlbumsScreen(state: AllAlbumsState) {
                                     .aspectRatio(1f)
                                     .clip(RoundedCornerShape(12.dp))
                                     .background(MaterialTheme.colorScheme.surfaceVariant)
+                                    .clickable {
+                                        onClick.invoke(album)
+                                    }
                             ) {
                                 if (album.type == AppConstants.TYPE_VIDEOS) {
                                     LoadImageThumb(
@@ -51,29 +62,44 @@ fun AllAlbumsScreen(state: AllAlbumsState) {
                                         modifier = Modifier.matchParentSize()
                                     )
                                 }
-
                             }
                             Text(
                                 text = album.folderName,
-                                maxLines = 2, style = MaterialTheme.typography.bodySmall.copy(
+                                maxLines = 2,
+                                style = MaterialTheme.typography.bodySmall.copy(
                                     fontFamily = promptFamily,
                                 ),
                                 overflow = TextOverflow.Ellipsis
                             )
                         }
-
                     }
 
                     PageItemViewType.MediumListView -> {
-
+                        MediumAlbumItemView(
+                            galleryMediaItem = album,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(6.dp)
+                                .clickable {
+                                    onClick.invoke(album)
+                                }
+                        )
                     }
 
                     PageItemViewType.SmallListView -> {
+                        SmallAlbumItemView(
+                            galleryMediaItem = album,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(6.dp)
+                                .clickable {
+                                    onClick.invoke(album)
+                                },
 
+                            )
                     }
                 }
             }
         })
-
     }
 }

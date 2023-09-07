@@ -13,6 +13,10 @@ sealed class Routes(val route: String, val name: String) {
     data object AllFilesScreen :
         Routes(AppConstants.APP_ALL_FILES_NAME, AppConstants.APP_ALL_FILES_NAME)
 
+    data object FilesScreen :
+        Routes(AppConstants.APP_FILES_ROUTE, AppConstants.APP_FILES_NAME)
+
+
     data object AllVideosScreen :
         Routes(AppConstants.APP_ALL_VIDEOS_ROUTE, AppConstants.APP_ALL_VIDEOS_NAME)
 
@@ -20,7 +24,7 @@ sealed class Routes(val route: String, val name: String) {
         Routes(AppConstants.APP_ALL_PHOTOS_ROUTE, AppConstants.APP_ALL_PHOTOS_NAME)
 
     data object FileDetailsScreen :
-        Routes(AppConstants.APP_VIDEO_DETAILS_ROUTE, AppConstants.APP_VIDEO_DETAILS_NAME)
+        Routes(AppConstants.APP_FILE_DETAILS_ROUTE, AppConstants.APP_FILE_DETAILS_NAME)
 
     data object SettingsScreen :
         Routes(AppConstants.APP_SETTINGS_ROUTE, AppConstants.APP_SETTINGS_ROUTE)
